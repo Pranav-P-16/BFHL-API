@@ -1,26 +1,34 @@
-const express = require('express');
-const { processDataArray } = require('./lib/processData');
-const { FULL_NAME, DOB, EMAIL, ROLL_NUMBER } = require('./config');
-
+const express = require("express");
 const app = express();
+
 app.use(express.json());
 
-app.get('/', (_req, res) => {
-  res.send('✅ BFHL API is running. Use POST /bfhl');
-});
-
-app.post('/bfhl', (req, res) => {
+// POST /bfhl
+app.post("/bfhl", (req, res) => {
   try {
-    const { data } = req.body || {};
-    if (!Array.isArray(data)) {
-      return res.status(400).json({ is_success: false, error: "Invalid input: 'data' must be an array" });
-    }
-    const result = processDataArray(data, { FULL_NAME, DOB, EMAIL, ROLL_NUMBER });
-    return res.status(200).json(result);
+    const data = req.body.data || [];
+    const numbers = data.filter((x) => !isNaN(x));
+    const alphabets = data.filter((x) => /^[a-zA-Z]$/.test(x));
+
+    const response = {
+      is_success: true,
+      user_id: "pranav_29082005",
+      email: "pranav@example.com",
+      roll_number: "EE20BTECH11001",
+      numbers,
+      alphabets,
+      highest_alphabet: alphabets.sort().slice(-1),
+    };
+
+    res.json(response);
   } catch (err) {
-    return res.status(500).json({ is_success: false, error: err.message || 'Internal Server Error' });
+    res.status(500).json({ is_success: false, error: err.message });
   }
 });
 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Server listening on port ${PORT}`));
+// GET /bfhl
+app.get("/bfhl", (req, res) => {
+  res.json({ operation_code: 1 });
+});
+
+module.exports = app;
