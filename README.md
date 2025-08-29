@@ -1,71 +1,60 @@
-# BFHL REST API
+# BFHL API
 
-A tiny API that accepts an array and returns:
-- `is_success`
-- `user_id` (format: `<full_name>_<ddmmyyyy>`, with full name in lowercase)
-- `email`, `roll_number`
-- `odd_numbers`, `even_numbers` (numbers returned **as strings**)
-- `alphabets` (converted to uppercase)
-- `special_characters`
-- `sum` (as a string)
-- `concat_string` (all alphabetical chars concatenated, reversed, in alternating caps)
+Simple serverless API for the BFHL assignment. Deploy to Vercel (or run locally).
 
-## Endpoints
-- **POST** `/bfhl` — main endpoint
+## Route
+POST /bfhl
 
-### Example Request
+## Request body
 ```json
 { "data": ["a","1","334","4","R","$"] }
 ```
 
-### Example Response
-```json
-{
-  "is_success": true,
-  "user_id": "john_doe_17091999",
-  "email": "john@xyz.com",
-  "roll_number": "ABCD123",
-  "odd_numbers": ["1"],
-  "even_numbers": ["334","4"],
-  "alphabets": ["A","R"],
-  "special_characters": ["$"],
-  "sum": "339",
-  "concat_string": "Ra"
-}
-```
+## Response
+JSON with fields:
+- is_success (boolean)
+- user_id (string) format: full_name_ddmmyyyy (full name lowercase, underscores)
+- email (string)
+- roll_number (string)
+- odd_numbers (array of strings)
+- even_numbers (array of strings)
+- alphabets (array of uppercase strings)
+- special_characters (array of strings)
+- sum (string)
+- concat_string (string)
 
-## Configure Your Identity
-Set these (or edit `config.js`):
+## Environment variables (set in Vercel)
+- FULL_NAME (e.g. `john_doe`)
+- DOB (ddmmyyyy, e.g. `17091999`)
+- EMAIL
+- ROLL_NUMBER
 
-- `FULL_NAME` (lowercase)
-- `DOB` (ddmmyyyy)
-- `EMAIL`
-- `ROLL_NUMBER`
+If not set, defaults are used.
 
-You can use a `.env` file (also works on Railway/Render):
-```
-FULL_NAME=your_full_name_in_lowercase
-DOB=ddmmyyyy
-EMAIL=you@example.com
-ROLL_NUMBER=XXXXXXX
-```
+## Deploy
+1. Push this repository to GitHub.
+2. On Vercel, import the repo and set the environment variables listed above.
+3. After deploy, use `https://<your-deployment>.vercel.app/bfhl` (POST).
 
-## Run Locally (Express)
+## Local testing
+To run locally:
+
+1. Install dependencies:
 ```bash
 npm install
-npm run start
-# POST http://localhost:3000/bfhl
 ```
 
-## Deploy to Vercel
-1. Push this repo to GitHub.
-2. Import into Vercel.
-3. It exposes `POST https://<your-app>.vercel.app/bfhl` via `vercel.json` rewrite.
+2. Start:
+```bash
+npm start
+```
 
-## Deploy to Railway/Render
-- Use the Node.js buildpack. The app entry is `index.js` and listens on `PORT`.
+The server will run at `http://localhost:3000/bfhl`.
 
-## Notes
-- All numbers are **returned as strings**.
-- Alphabet groups like `"ABcD"` are preserved in `alphabets` as uppercased items, but their characters are also used for `concat_string`.
-- Errors return `{ "is_success": false, "error": "..." }` with proper status codes.
+## Examples (curl)
+Example A:
+```bash
+curl -X POST 'https://<your-deploy>.vercel.app/bfhl' \
+  -H 'Content-Type: application/json' \
+  -d '{"data":["a","1","334","4","R","$"]}'
+```
